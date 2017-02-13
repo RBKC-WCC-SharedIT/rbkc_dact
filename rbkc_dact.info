@@ -1,0 +1,7 @@
+name = RBKC Domain Access Content Types
+description = Filter list of content types by domain
+core = 7.x
+package = RBKC
+version = 7.1
+
+dependencies[] = workbench
