@@ -12,12 +12,27 @@ function rbkc_dact_menu() {
     'description' => 'Configure which content types are shown in the create-content list',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('rbkc_dact_content_types'),
-    'access arguments' => array('administer domain integration'),
+    'access arguments' => array('administer domain content types'),
     'type' => MENU_NORMAL_ITEM,
   );
   
   return $items;
 }
+
+/**
+ * Implements hook_permission().
+ */
+function rbkc_dact_permission() {
+  $permissions = array(
+    'administer domain content types' => array(
+      'title' => t('Administer domain content types'),
+      'restrict access' => TRUE,
+    ),
+  );
+  
+  return $permissions;
+}
+
 
 function rbkc_dact_content_types() {
   $domain = domain_get_domain();
