@@ -6,7 +6,7 @@
  */
 function rbkc_dact_menu() {
   $items = array();
-  
+
   $items['admin/structure/types/per_domain'] = array(
     'title' => 'Domain content types',
     'description' => 'Configure which content types are shown in the create-content list',
@@ -15,7 +15,7 @@ function rbkc_dact_menu() {
     'access arguments' => array('administer domain content types'),
     'type' => MENU_NORMAL_ITEM,
   );
-  
+
   return $items;
 }
 
@@ -29,24 +29,23 @@ function rbkc_dact_permission() {
       'restrict access' => TRUE,
     ),
   );
-  
+
   return $permissions;
 }
 
 
 function rbkc_dact_content_types() {
-  $domain = domain_get_domain();
-  
+
   $form = array();
-  
+
   $options = array();
   $types = node_type_get_types();
   foreach ($types as $type) {
     $options[$type->type] = $type->name;
   }
-  
+
   $domain = domain_get_domain();
-  
+
   $form['rbkc_dact_enabled_content_types'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Content types to enable for this site, '.$domain['sitename']),
@@ -54,10 +53,38 @@ function rbkc_dact_content_types() {
     '#options' => $options,
     '#description' => t("Select the content types to enable for this site. Editors will only be able to create content that are enable here."),
   );
-  
+
+  $form['rbkc_dact_display'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Current settings',
+  );
+
+  foreach (domain_domains() as $domain) {
+
+    $domain_content_types = domain_conf_variable_get($domain['domain_id'], 'rbkc_dact_enabled_content_types');
+    $domain_content_list = array();
+    $sitename = $domain['sitename'];
+
+    foreach($domain_content_types as $content_type) {
+      if ($content_type) {
+        $domain_content_list[] = node_type_get_name($content_type);
+      }
+    }
+
+    $domain_content_list = theme('item_list', array(
+      'items' => array(
+        'data' => $domain_content_list,
+      ),
+      'title' => $sitename,
+    ));
+
+    $form['rbkc_dact_display']['rbkc_dact_' . $domain['sitename']] = array(
+      '#markup' => $domain_content_list,
+    );
+  }
+
   return system_settings_form($form);
 }
-
 
 
 /**
@@ -74,10 +101,10 @@ function rbkc_dact_menu_alter(&$items) {
 function rbkc_dact_workbench_create() {
   $output = array();
   $output['workbench_create_default'] = _rbkc_dact_workbench_create();
-  
+
   // Allow other modules to add content here.
   drupal_alter('workbench_create', $output);
-  
+
   return $output;
 }
 
@@ -85,9 +112,9 @@ function rbkc_dact_workbench_create() {
 function _rbkc_dact_workbench_create() {
   $output = array();
   $output['#markup'] = '<h3>' . t('Create content') . '</h3>';
-  
+
   $content = rbkc_dact_get_domain_content_types();
-  
+
   if (!empty($content)) {
     // Theme the array of content type creation links.
     $output['#markup'] .= theme('node_add_list', array('content' => $content));
@@ -95,19 +122,19 @@ function _rbkc_dact_workbench_create() {
   else {
     $output['#markup'] .= t('You cannot create any new content on this site. Please contact the site administrator.');
   }
-  
+
   return $output;
 }
 
 
 function rbkc_dact_get_domain_content_types() {
-  
+
   $domain = domain_get_domain();
   $enabled_types = domain_conf_variable_get($domain['domain_id'], 'rbkc_dact_enabled_content_types');
   $enabled_types = array_keys(array_filter($enabled_types));
-  
+
   $all_types = node_type_get_types();
-  
+
   $content = array();
   foreach ($all_types as $type_name => $type_data) {
     if (in_array($type_name, $enabled_types)) {
@@ -119,7 +146,7 @@ function rbkc_dact_get_domain_content_types() {
       );
     }
   }
-  
+
   return $content;
 }
 
