@@ -72,9 +72,7 @@ function rbkc_dact_content_types() {
     }
 
     $domain_content_list = theme('item_list', array(
-      'items' => array(
-        'data' => $domain_content_list,
-      ),
+      'items' => $domain_content_list,
       'title' => $sitename,
     ));
 
