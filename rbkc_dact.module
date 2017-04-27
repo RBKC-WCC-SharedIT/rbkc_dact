@@ -136,6 +136,9 @@ function rbkc_dact_get_domain_content_types() {
   $content = array();
   foreach ($all_types as $type_name => $type_data) {
     if (in_array($type_name, $enabled_types)) {
+
+      $type_name = str_replace('_', '-', $type_name);
+
       $content[] = array(
         'title' => $type_data->name,
         'href' => 'node/add/'.$type_name,
